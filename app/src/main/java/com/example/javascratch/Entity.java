@@ -9,13 +9,17 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 
 public class Entity  {
     private final Resources res;
     private Bitmap skin;
     int messageTime = 0;
-    String message = "";
+    String message = null;
     Paint textPaint;
+    ArrayDeque<EntityAction> queue = new ArrayDeque<>();
 
     Point size = new Point(100, 100);
     int windowWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -23,8 +27,8 @@ public class Entity  {
     Point position = new Point(windowWidth/2, windowHeight/2);
     private boolean isSayed = false;
 
-    public void setPosition(Point position) {
-        this.position = position;
+    public void setPosition(int x, int y) {
+        this.position = new Point(x, y);
     }
 
     public void setSize(int width, int height) {
@@ -50,63 +54,67 @@ public class Entity  {
     }
 
     public void draw(Canvas canvas){
-        if(messageTime > 0){
-            messageTime -= 1;
-            canvas.drawText(message, position.x + size.x/2, position.y - size.y* 1/ 3, textPaint);
+        if(message != null){
+            canvas.drawText(message, position.x + size.x / 2, position.y - size.y * 1 / 3, textPaint);
         }
         canvas.drawBitmap(skin, position.x - size.x/2, position.y - size.y/2, null);
     }
 
 
-    //Сделать шаг
-    public void step(Direction direction, int step){
-        switch (direction){
-            case UP:
-                position.y -= step;
-                break;
-            case DOWN:
-                position.y += step;
-                break;
-            case LEFT:
-                position.x -= step;
-                break;
-            case RIGHT:
-                position.x += step;
+    //Сделать шаги
+    public void stepFor(Direction direction, int steps, int speed){
+        for(int i = 0; i < steps; i++){
+            switch (direction) {
+                case UP:
+                    queue.add((e) -> {
+                        e.position.y -= speed;
+                    });
+                    break;
+                case DOWN:
+                    queue.add((e) -> {
+                        e.position.y += speed;
+                    });
+
+                    break;
+                case LEFT:
+                    queue.add((e) -> {
+                        e.position.x -= speed;
+                    });
+                    break;
+                case RIGHT:
+                    queue.add((e) -> {
+                        e.position.x += speed;
+                    });
+            }
         }
     }
 
     //Сказать
-    void say(String message, int messageTime){
-        if(isSayed){
-            return;
+    void sayFor(String message, int messageTime){
+        for (int i = 0; i < messageTime; i++){
+            queue.add((e) -> {
+                e.message = message;
+            });
         }
-        isSayed = true;
-        this.message = message;
-        this.messageTime = messageTime;
-
+        queue.add((entity -> entity.message = null));
     }
 
 
 
     public void update() {
-        toExecute();
-
+        if(queue.peek() != null){
+            queue.pop().callback(this);
+        }
 //        if(position.y > 0) {
 //            step(Direction.UP, 1);
 //        }
 //        say("Привет", 55);
     }
 
-    int i = 0;
 
-    private void toExecute() {
-        if(i < 100){
-            i++;
-            step(Direction.UP, 5);
-        }
-    }
 
     enum Direction{
         UP, DOWN, LEFT, RIGHT
     }
 }
+
