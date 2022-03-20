@@ -3,24 +3,30 @@ package com.example.javascratch;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.Window;
+import android.view.WindowManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        ConstraintLayout field = findViewById(R.id.cl_field);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(new Field(this));
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point windowSize = new Point();
-        display.getSize(windowSize);
+//        getWindow().setFlags();
 
-        Entity entity = new Entity(field, windowSize);
+//        Display display = getWindowManager().getDefaultDisplay();
+//        Point windowSize = new Point();
+//        display.getSize(windowSize);
+//
+//        Entity entity = new Entity(field, windowSize);
 
 
 
