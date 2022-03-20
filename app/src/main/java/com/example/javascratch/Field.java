@@ -19,8 +19,8 @@ public class Field extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
 
         setBackgroundColor(getResources().getColor(R.color.white));
-        amogus = new Entity();
-        amogus.setSkin(R.drawable.among_us);
+        amogus = new Entity(getResources());
+        amogus.setSkin(R.drawable.minecraft);
         amogus.setSize(200, 200);
 
         mainThread = new MainThread(this);

@@ -7,24 +7,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.os.Build;
-import android.util.Pair;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
+import android.graphics.drawable.Drawable;
 
 
 public class Entity  {
+    private final Resources res;
     private Bitmap skin;
+    int messageTime = 0;
+    String message = "";
+    Paint textPaint;
 
     Point size = new Point(100, 100);
     int windowWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
     int windowHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
     Point position = new Point(windowWidth/2, windowHeight/2);
+    private boolean isSayed = false;
 
     public void setPosition(Point position) {
         this.position = position;
@@ -36,23 +33,32 @@ public class Entity  {
     }
 
     public void setSkin(int path) {
-//        this.skin = BitmapFactory.decodeResource(Resources.getSystem(), path);
         this.skin = Bitmap.createScaledBitmap(
-                BitmapFactory.decodeResource(Resources.getSystem(), path),
+                BitmapFactory.decodeResource(res, path),
                 size.x,
                 size.y,
                 false);
 
     }
 
-    Entity(){
-        skin = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cat);
+    Entity(Resources res){
+        this.res = res;
+        skin = BitmapFactory.decodeResource(res, R.drawable.cat);
+        textPaint = new Paint();
+        textPaint.setColor(res.getColor(R.color.black));
+        textPaint.setTextSize(45f);
     }
 
     public void draw(Canvas canvas){
+        if(messageTime > 0){
+            messageTime -= 1;
+            canvas.drawText(message, position.x + size.x/2, position.y - size.y* 1/ 3, textPaint);
+        }
         canvas.drawBitmap(skin, position.x - size.x/2, position.y - size.y/2, null);
     }
 
+
+    //Сделать шаг
     public void step(Direction direction, int step){
         switch (direction){
             case UP:
@@ -62,16 +68,41 @@ public class Entity  {
                 position.y += step;
                 break;
             case LEFT:
-                position.x += step;
+                position.x -= step;
                 break;
             case RIGHT:
-                position.x -= step;
+                position.x += step;
         }
     }
 
+    //Сказать
+    void say(String message, int messageTime){
+        if(isSayed){
+            return;
+        }
+        isSayed = true;
+        this.message = message;
+        this.messageTime = messageTime;
+
+    }
+
+
+
     public void update() {
-        if(position.y > 0) {
-            step(Entity.Direction.UP, 1);
+        toExecute();
+
+//        if(position.y > 0) {
+//            step(Direction.UP, 1);
+//        }
+//        say("Привет", 55);
+    }
+
+    int i = 0;
+
+    private void toExecute() {
+        if(i < 100){
+            i++;
+            step(Direction.UP, 5);
         }
     }
 
